@@ -25,7 +25,6 @@ func startRepl(cfg *config) {
 			args = cleanedText[1:]
 		}
 
-
 		availableCommands := getCommands()
 
 		command, ok := availableCommands[commandName]
@@ -73,6 +72,21 @@ func getCommands() map[string]cliCommand {
 			name:        "explore {location_area}",
 			description: "Explore the pokemon in an area",
 			callback:    commandExplore,
+		},
+		"catch": {
+			name:        "catch {pokemon_name}",
+			description: "Try to catch a pokemon and add it to your pokedex",
+			callback:    commandCatch,
+		},
+		"inspect": {
+			name:        "inspect {pokemon_name}",
+			description: "inspect a caught pokemon in your pokedex",
+			callback:    commandInspect,
+		},
+		"pokedex": {
+			name:        "pokedex",
+			description: "Print all pokemon in your pokedex",
+			callback:    commandPokedex,
 		},
 	}
 }
