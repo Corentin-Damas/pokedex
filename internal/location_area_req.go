@@ -10,10 +10,24 @@ import (
 func (c *Client) ListLocationAreas(pageURL *string) (LocationAreasResp, error) {
 	endpoint := "/location-area"
 	fullUrl := baseURL + endpoint
-	if pageURL != nil{
+	if pageURL != nil {
 		fullUrl = *pageURL
 	}
 
+	// Check the cache , Key = url
+	data, ok := c.cache.Get(fullUrl)
+	if ok {
+		// cache it
+		fmt.Println("Cache hit!")
+		locationAreasResp := LocationAreasResp{}
+		err := json.Unmarshal(data, &locationAreasResp) // Transform & Transfer Json Data -> struct
+
+		if err != nil {
+			return LocationAreasResp{}, err
+		}
+		return locationAreasResp, nil // early return if data already there
+	}
+	fmt.Println("chach miss !")
 
 	req, err := http.NewRequest("GET", fullUrl, nil)
 
@@ -29,19 +43,22 @@ func (c *Client) ListLocationAreas(pageURL *string) (LocationAreasResp, error) {
 	defer resp.Body.Close() // close the Response Object when we finish
 
 	if resp.StatusCode > 399 {
-		return LocationAreasResp{}, fmt.Errorf("Bad status code: %v", resp.StatusCode)
+		return LocationAreasResp{}, fmt.Errorf("bad status code: %v", resp.StatusCode)
 	}
 
-	data, err := io.ReadAll(resp.Body)
+	dat, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return LocationAreasResp{}, err
 	}
 
 	locationAreasResp := LocationAreasResp{}
-	err = json.Unmarshal(data, &locationAreasResp) // Transform & Transfer Json Data -> struct 
+	err = json.Unmarshal(dat, &locationAreasResp) // Transform & Transfer Json Data -> struct
 
-	if err != nil{
+	if err != nil {
 		return LocationAreasResp{}, err
 	}
-	return  locationAreasResp, nil
+
+	c.cache.Add(fullUrl, dat)
+
+	return locationAreasResp, nil
 }

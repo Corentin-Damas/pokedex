@@ -3,6 +3,8 @@ package pokeapi
 import (
 	"net/http"
 	"time"
+
+	"github.com/Corentin-Damas/pokedexcli/pokecache"
 )
 
 // responsible to connect to the PokeApi on the internet
@@ -25,15 +27,16 @@ const baseURL string = "https://pokeapi.co/api/v2/"
 
 // Client: Transform a specific mechanism by which individual http request are made
 type Client struct {
+	cache      pokecache.Cache
 	httpClient http.Client
 }
 
 // NewClient:  Stop the http request after a minute
-func NewClient() Client {
+func NewClient(cacheInterval time.Duration) Client {
 	return Client{
+		cache: pokecache.NewCache(cacheInterval),
 		httpClient: http.Client{
-			Timeout: time.Minute, 
+			Timeout: time.Minute,
 		},
 	}
 }
-
